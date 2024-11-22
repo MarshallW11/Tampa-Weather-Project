@@ -1,7 +1,11 @@
 FROM python:3.11
 
-RUN pip install requests pandas
+WORKDIR /APP
 
-COPY main.py /
+RUN pip install requests pandas matplotlib datetime
+RUN mkdir -p app/output
+RUN chmod -R 777 app/output
+
+COPY TampaWeatherProject/main.py /
 
 CMD ["python", "/main.py"]

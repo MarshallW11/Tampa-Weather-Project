@@ -1,9 +1,8 @@
 import requests
 import pandas as pd
-
-import requests
-import pandas as pd
+import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
+
 
 
 def fetch_historical_temperatures(year):
@@ -44,6 +43,20 @@ def fetch_historical_temperatures(year):
 # Fetch historical data for both 2023 and available data in 2024
 df_2023 = fetch_historical_temperatures(2023)
 df_2024 = fetch_historical_temperatures(2024)
+
+plt.figure(figsize=(12, 6))
+
+plt.plot(df_2023['date'], df_2023['temp_max'], label='2023 Max Temp', alpha=0.7)
+plt.plot(df_2024['date'], df_2024['temp_max'], label='2024 Max Temp', alpha=0.7)
+
+plt.xlabel('Date')
+plt.ylabel('Temperature (°C)')
+plt.title('Comparison of Maximum Temperatures: 2023 vs. 2024')
+plt.legend()
+plt.tight_layout()
+
+plt.savefig('app/output/comparison_temperatures_2023_vs_2024.png', dpi=300, bbox_inches='tight')
+plt.show()
 
 # Calculate the average temperatures if data exists for both years
 if df_2023 is not None and df_2024 is not None:
