@@ -1,0 +1,14 @@
+# PostgreSQL Configuration
+CB_DB_NAME=chartbrew_db
+CB_DB_USERNAME=chartbrew_user
+CB_DB_PASSWORD=chartbrew_password
+CB_DB_HOST=postgres
+
+# Redis Configuration
+CB_REDIS_PASSWORD=your_redis_password_here
+
+# Chartbrew Configuration
+VITE_APP_API_HOST=http://localhost:4019
+VITE_APP_CLIENT_HOST=http://localhost
+VITE_APP_CLIENT_PORT=4018
+

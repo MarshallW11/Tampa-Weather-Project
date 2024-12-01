@@ -1,16 +1,15 @@
 import requests
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
+import psycopg2
+from datetime import datetime
 
 
-
-def fetch_historical_temperatures(year):
+def fetch_historical_temperatures(start_year, end_year):
     endpoint = "https://archive-api.open-meteo.com/v1/archive"
     # Adjust end date to account for the 5-day delay on current data availability
-    today = datetime.now()
-    end_date = min(today - timedelta(days=5), datetime(year, 12, 31)).strftime("%Y-%m-%d")
-    start_date = f"{year}-01-01"
+    start_date = f"{start_year}-01-01"
+    end_date = f"{end_year}-12-31"
 
     params = {
         "latitude": 27.9506,  # Tampa Bay latitude
@@ -40,41 +39,41 @@ def fetch_historical_temperatures(year):
         return None
 
 
-# Fetch historical data for both 2023 and available data in 2024
-df_2023 = fetch_historical_temperatures(2023)
-df_2024 = fetch_historical_temperatures(2024)
+# Fetch data for 1965–2023
+df_combined = fetch_historical_temperatures(1965, 2023)
 
-plt.figure(figsize=(12, 6))
+if df_combined is not None:
+    # Add year column
+    df_combined['year'] = df_combined['date'].dt.year
 
-plt.plot(df_2023['date'], df_2023['temp_max'], label='2023 Max Temp', alpha=0.7)
-plt.plot(df_2024['date'], df_2024['temp_max'], label='2024 Max Temp', alpha=0.7)
+    # Calculate yearly averages for max and min temperatures
+    yearly_avg = df_combined.groupby('year').agg({
+        'temp_max': 'mean',
+        'temp_min': 'mean'
+    }).reset_index()
 
-plt.xlabel('Date')
-plt.ylabel('Temperature (°C)')
-plt.title('Comparison of Maximum Temperatures: 2023 vs. 2024')
-plt.legend()
-plt.tight_layout()
+    # Save to CSV
+    yearly_avg.to_csv('yearly_avg_temps_1965_2023.csv', index=False)
 
-plt.savefig('app/output/comparison_temperatures_2023_vs_2024.png', dpi=300, bbox_inches='tight')
-plt.show()
+    # Plot the data
+    plt.figure(figsize=(15, 7))
+    plt.plot(yearly_avg['year'], yearly_avg['temp_max'], label='Average Max Temp', alpha=0.8, linewidth=2)
+    plt.plot(yearly_avg['year'], yearly_avg['temp_min'], label='Average Min Temp', alpha=0.8, linewidth=2)
 
-# Calculate the average temperatures if data exists for both years
-if df_2023 is not None and df_2024 is not None:
-    # Calculate average temperatures in Celsius
-    avg_temp_2023_c = df_2023['temp_avg_c'].mean()
-    avg_temp_2024_c = df_2024['temp_avg_c'].mean()
+    plt.xlabel('Year')
+    plt.ylabel('Temperature (°C)')
+    plt.title('Yearly Average Temperatures (1965–2023)')
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.tight_layout()
+    plt.savefig('yearly_avg_temperatures_1965_2023.png', dpi=300, bbox_inches='tight')
+    plt.show()
 
-    # Calculate average temperatures in Fahrenheit
-    avg_temp_2023_f = df_2023['temp_avg_f'].mean()
-    avg_temp_2024_f = df_2024['temp_avg_f'].mean()
+    # Print summary statistics
+    avg_temp_max_c = yearly_avg['temp_max'].mean()
+    avg_temp_min_c = yearly_avg['temp_min'].mean()
 
-    # Calculate the temperature change
-    temp_change_c = avg_temp_2024_c - avg_temp_2023_c
-    temp_change_f = avg_temp_2024_f - avg_temp_2023_f
-
-    # Print the results
-    print(f"Average temperature in 2023: {avg_temp_2023_c:.2f}°C / {avg_temp_2023_f:.2f}°F")
-    print(f"Average temperature in 2024: {avg_temp_2024_c:.2f}°C / {avg_temp_2024_f:.2f}°F")
-    print(f"Average temperature change from 2023 to 2024: {temp_change_c:.2f}°C / {temp_change_f:.2f}°F")
+    print(f"Average Max Temperature (1965–2023): {avg_temp_max_c:.2f}°C")
+    print(f"Average Min Temperature (1965–2023): {avg_temp_min_c:.2f}°C")
 else:
-    print("Data retrieval failed for one or both years.")
+    print("Failed to retrieve data.")
