@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import psycopg2
 from datetime import datetime
+import os
 
 
 def fetch_historical_temperatures(start_year, end_year):

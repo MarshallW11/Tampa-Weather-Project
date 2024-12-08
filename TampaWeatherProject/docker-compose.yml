@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: chartbrew_user
+      POSTGRES_PASSWORD: chartbrew_password
+      POSTGRES_DB: chartbrew_db
+    volumes:
+      - chartbrew-db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    restart: unless-stopped
+    environment:
+      CB_REDIS_HOST: redis
+      REDIS_PASSWORD: ${CB_REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+
+  chartbrew:
+    build:
+      context: ./chartbrew
+    container_name: chartbrew_container
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "3000:3000"  # Frontend
+      - "3001:3001"  # API
+    depends_on:
+      - postgres
+      - redis
+    links:
+      - postgres
+      - redis
+
+volumes:
+  chartbrew-db:
