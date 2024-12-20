@@ -1,3 +1,4 @@
+
 services:
   postgres:
     image: postgres:latest
@@ -16,9 +17,6 @@ services:
     image: redis:latest
     container_name: redis_container
     restart: unless-stopped
-    environment:
-      CB_REDIS_HOST: redis
-      REDIS_PASSWORD: ${CB_REDIS_PASSWORD}
     ports:
       - "6379:6379"
 
@@ -27,7 +25,8 @@ services:
       context: ./chartbrew
     container_name: chartbrew_container
     restart: unless-stopped
-    env_file: .env
+    env_file:
+      - chartbrew/.env  # Points to the .env file in the same directory as this YML file
     ports:
       - "3000:3000"  # Frontend
       - "3001:3001"  # API
