@@ -26,7 +26,7 @@ services:
     container_name: chartbrew_container
     restart: unless-stopped
     env_file:
-      - chartbrew/.env  # Points to the .env file in the same directory as this YML file
+      - .env  # Points to the .env file in the same directory as this YML file
     ports:
       - "3000:3000"  # Frontend
       - "3001:3001"  # API
