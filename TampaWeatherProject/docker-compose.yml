@@ -21,8 +21,7 @@ services:
       - "6379:6379"
 
   chartbrew:
-    build:
-      context: ./chartbrew
+    image: razvanilin/chartbrew
     container_name: chartbrew_container
     restart: unless-stopped
     env_file:
